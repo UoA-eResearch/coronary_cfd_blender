@@ -2,6 +2,7 @@ import bpy
 import os
 import mathutils
 import csv
+import copy
 
 basedir = 'C:/Users/nyou045/git/coronary_cfd_blender/'
 
@@ -30,10 +31,9 @@ for i,r in enumerate(reader):
         bpy.ops.object.duplicate()
     o = bpy.context.selected_objects[0]
     p = mathutils.Vector((float(r[' X [ m ]']), float(r[' Y [ m ]']), float(r[' Z [ m ]'])))
-    if origin:
-        p -= origin
-    else:
-        origin = p
+    if i == 0:
+        origin = copy.copy(p)
+    p -= origin
     d = mathutils.Vector((float(r[' Velocity u [ m s^-1 ]']), float(r[' Velocity v [ m s^-1 ]']), float(r[' Velocity w [ m s^-1 ]'])))
     m = d.magnitude
     if m > maxM:

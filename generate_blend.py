@@ -13,7 +13,7 @@ for mesh in bpy.data.meshes:
     bpy.data.meshes.remove(mesh)
 print("scene cleared")
 
-with open(basedir + 'export-vel-time- 407.csv') as f:
+with open(basedir + 'export-new.csv') as f:
     lines = f.readlines()
 
 reader = list(csv.DictReader(lines[5:]))[::200]

@@ -83,6 +83,7 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
+				// Configure camera
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.set( -2, 22, 0 );
 				camera.rotation.set(-1.71, .343, -.05);
@@ -97,7 +98,7 @@
 	            controls.autoForward = false;
 	            controls.dragToLook = true;
 
-				// Add the COLLADA
+				// Add the model
 
 				scene.add( dae );
 

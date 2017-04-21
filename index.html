@@ -53,29 +53,28 @@
 			var container, stats;
 
 			var camera, scene, renderer, objects, controls;
+			var animations;
+			var kfAnimations = [];
+			var kfAnimationsLength = 0;
+			var lastTimestamp = 0;
+			var progress = 0;
 			var particleLight;
 			var dae;
 
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis = true;
-			loader.load( './export-new.dae', function ( collada ) {
+			loader.load( './export-new-4d.dae', function ( collada ) {
 				console.log("model loaded");
 
 				dae = collada.scene;
 
-				dae.traverse( function ( child ) {
-
-					if ( child instanceof THREE.SkinnedMesh ) {
-
-						var animation = new THREE.Animation( child, child.geometry.animation );
-						animation.play();
-
-					}
-
-				} );
+				animations = collada.animations;
+				kfAnimationsLength = animations.length;
+        console.log(animations);
 
 				init();
-				animate();
+				start();
+				animate(lastTimestamp);
 
 			} );
 
@@ -90,6 +89,15 @@
 				camera.rotation.set(-1.71, .343, -.05);
 
 				scene = new THREE.Scene();
+				
+				
+				// KeyFrame Animations
+				for ( var i = 0; i < kfAnimationsLength; ++i ) {
+					var animation = animations[ i ];
+					var kfAnimation = new THREE.KeyFrameAnimation( animation );
+					kfAnimation.timeScale = 1;
+					kfAnimations.push( kfAnimation );
+				}
 
 				// Controls
 	            controls = new THREE.FlyControls(camera);
@@ -125,6 +133,29 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
+			
+			function start() {
+				for ( var i = 0; i < kfAnimationsLength; ++i ) {
+					var animation = kfAnimations[i];
+					for ( var h = 0, hl = animation.hierarchy.length; h < hl; h++ ) {
+						var keys = animation.data.hierarchy[ h ].keys;
+						var sids = animation.data.hierarchy[ h ].sids;
+						var obj = animation.hierarchy[ h ];
+						if ( keys.length && sids ) {
+							for ( var s = 0; s < sids.length; s++ ) {
+								var sid = sids[ s ];
+								var next = animation.getNextKeyWith( sid, h, 0 );
+								if ( next ) next.apply( sid );
+							}
+							obj.matrixAutoUpdate = false;
+							animation.data.hierarchy[ h ].node.updateMatrix();
+							obj.matrixWorldNeedsUpdate = true;
+						}
+					}
+					animation.loop = false;
+					animation.play();
+				}
+			}
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -132,18 +163,27 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 
-			function animate() {
-				requestAnimationFrame( animate );
-				render();
+			function animate(timestamp) {
+			  var frameTime = ( timestamp - lastTimestamp ) * 0.001;
+				if ( progress >= 0 && progress < 20 ) {
+					for ( var i = 0; i < kfAnimationsLength; ++i ) {
+						kfAnimations[ i ].update( frameTime );
+					}
+				} else if ( progress >= 20 ) {
+					for ( var i = 0; i < kfAnimationsLength; ++i ) {
+						kfAnimations[ i ].stop();
+					}
+					progress = 0;
+					start();
+				}
+				
+				progress += frameTime;
+				console.log(progress);
+				lastTimestamp = timestamp;
+        renderer.render( scene, camera );
 				stats.update();
 				controls.update(1);
-			}
-
-			var clock = new THREE.Clock();
-
-			function render() {
-				THREE.AnimationHandler.update( clock.getDelta() );
-				renderer.render( scene, camera );
+				requestAnimationFrame( animate );
 			}
 
 		</script>

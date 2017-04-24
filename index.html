@@ -154,7 +154,6 @@
 					}
 					animation.loop = false;
 					animation.play();
-					animation.update(16);
 				}
 			}
 
@@ -166,11 +165,11 @@
 
 			function animate(timestamp) {
 			  var frameTime = ( timestamp - lastTimestamp ) * 0.001;
-				if ( progress >= 0 && progress < 4 ) {
+				if (progress < 3.5 ) {
 					for ( var i = 0; i < kfAnimationsLength; ++i ) {
 						kfAnimations[ i ].update( frameTime );
 					}
-				} else if ( progress >= 4 ) {
+				} else {
 					for ( var i = 0; i < kfAnimationsLength; ++i ) {
 						kfAnimations[ i ].stop();
 					}

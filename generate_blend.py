@@ -6,7 +6,7 @@ import copy
 import glob
 import re
 
-basedir = 'C:/Users/nyou045/git/coronary_cfd_blender/'
+basedir = '/home/nyou045/git/coronary_cfd_blender/'
 
 # Clear Blender scene
 for obj in bpy.data.objects:
@@ -16,6 +16,7 @@ for mesh in bpy.data.meshes:
 print("scene cleared")
 
 files = glob.glob(basedir + 'export-vel-time- *.csv')
+files.sort()
 print(files)
 maxM = 0
 
@@ -28,7 +29,7 @@ ks.use_insertkey_visual = False
 ks.use_insertkey_xyz_to_rgb = True
 
 for file_index, f in enumerate(files):
-    ts = int(re.search(r'export-vel-time- (\d+).csv', f).group(1))
+    ts = int(re.search(r'export-vel-time- (\d+).csv', f).group(1)) - 405
     bpy.context.scene.frame_set(ts)
     print("tslice: {}".format(ts))
     with open(f) as fh:
@@ -57,9 +58,8 @@ for file_index, f in enumerate(files):
             if m > maxM:
                 maxM = m
 
-            q = d.to_track_quat('Z','Y')
-            o.rotation_mode = 'QUATERNION'
-            o.rotation_quaternion = q
+            e = d.to_track_quat('Z','Y').to_euler()
+            o.rotation_euler = e
             o.location = p
             o.scale = (m, m, m)
             mat = bpy.data.materials.new("material")
@@ -68,7 +68,7 @@ for file_index, f in enumerate(files):
             mat.diffuse_color = color
             o.active_material = mat
             ks.paths.add(o, 'location', index=-1)
-            ks.paths.add(o, 'rotation_quaternion', index=-1)
+            ks.paths.add(o, 'rotation_euler', index=-1)
             ks.paths.add(o, 'scale', index=-1)
             ks.paths.add(mat, 'diffuse_color', index=-1)
             bpy.ops.anim.keyframe_insert_menu()
@@ -85,9 +85,8 @@ for file_index, f in enumerate(files):
             if m > maxM:
                 maxM = m
 
-            q = d.to_track_quat('Z','Y')
-            o.rotation_mode = 'QUATERNION'
-            o.rotation_quaternion = q
+            e = d.to_track_quat('Z','Y').to_euler()
+            o.rotation_euler = e
             o.location = p
             o.scale = (m, m, m)
             color = mathutils.Color()

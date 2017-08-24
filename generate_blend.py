@@ -58,8 +58,9 @@ for file_index, f in enumerate(files):
             if m > maxM:
                 maxM = m
 
-            e = d.to_track_quat('Z','Y').to_euler()
-            o.rotation_euler = e
+            q = d.to_track_quat('Z','Y')
+            o.rotation_mode = 'QUATERNION'
+            o.rotation_quaternion = q
             o.location = p
             o.scale = (m, m, m)
             mat = bpy.data.materials.new("material")
@@ -68,7 +69,7 @@ for file_index, f in enumerate(files):
             mat.diffuse_color = color
             o.active_material = mat
             ks.paths.add(o, 'location', index=-1)
-            ks.paths.add(o, 'rotation_euler', index=-1)
+            ks.paths.add(o, 'rotation_quaternion', index=-1)
             ks.paths.add(o, 'scale', index=-1)
             ks.paths.add(mat, 'diffuse_color', index=-1)
             bpy.ops.anim.keyframe_insert_menu()
@@ -85,8 +86,8 @@ for file_index, f in enumerate(files):
             if m > maxM:
                 maxM = m
 
-            e = d.to_track_quat('Z','Y').to_euler()
-            o.rotation_euler = e
+            q = d.to_track_quat('Z','Y')
+            o.rotation_quaternion = q
             o.location = p
             o.scale = (m, m, m)
             color = mathutils.Color()
